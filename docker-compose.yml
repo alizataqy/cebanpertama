@@ -6,7 +6,7 @@ services:
     container_name: ceban-pertama-app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3033:3000"
     env_file:
       - .env
     extra_hosts:

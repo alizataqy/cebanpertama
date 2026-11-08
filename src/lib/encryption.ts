@@ -1,17 +1,19 @@
 import crypto from "crypto";
 
-const RAW_KEY = process.env.ENCRYPTION_KEY;
-if (!RAW_KEY && process.env.NODE_ENV === "production") {
-  throw new Error("ENCRYPTION_KEY environment variable is required in production.");
-}
-// Fallback key strictly for local development
-const ENCRYPTION_KEY = RAW_KEY || "a-very-secure-key-32-chars-long!!";
 const IV_LENGTH = 16; // For AES, this is always 16
+
+function getEncryptionKey(): string {
+  const rawKey = process.env.ENCRYPTION_KEY;
+  if (!rawKey && process.env.NODE_ENV === "production") {
+    throw new Error("ENCRYPTION_KEY environment variable is required in production.");
+  }
+  return rawKey || "a-very-secure-key-32-chars-long!!";
+}
 
 export function encrypt(text: string): string {
   if (!text) return "";
   try {
-    const key = crypto.createHash("sha256").update(String(ENCRYPTION_KEY)).digest();
+    const key = crypto.createHash("sha256").update(getEncryptionKey()).digest();
     const iv = crypto.randomBytes(IV_LENGTH);
     const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
     let encrypted = cipher.update(text);
@@ -28,10 +30,10 @@ export function decrypt(text: string): string {
   try {
     const parts = text.split(":");
     if (parts.length < 2) return text; // Bukan teks terenkripsi yang valid
-    
+
     const iv = Buffer.from(parts.shift() || "", "hex");
     const encryptedText = Buffer.from(parts.join(":"), "hex");
-    const key = crypto.createHash("sha256").update(String(ENCRYPTION_KEY)).digest();
+    const key = crypto.createHash("sha256").update(getEncryptionKey()).digest();
     const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);

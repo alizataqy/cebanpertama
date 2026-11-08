@@ -7,9 +7,15 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
-RUN npm install
+RUN --mount=type=cache,target=/root/.npm npm install --no-audit --no-fund
 
 COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+ENV BETTER_AUTH_SECRET="build-secret-dummy-ceban-pertama-32chars"
+ENV BETTER_AUTH_URL="http://localhost:3000"
+
 RUN npm run build
 
 EXPOSE 3000
