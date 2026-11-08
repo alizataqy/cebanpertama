@@ -10,11 +10,15 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Ambil data session Better Auth dari incoming request headers
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  
+  let session = null;
+  try {
+    session = await auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch (error) {
+    console.error("[Home] Gagal memuat session user:", error);
+  }
+
   // Ambil session data yang aman
   const userData = session?.user ? {
     id: session.user.id,

@@ -7,7 +7,8 @@
  * Menghasilkan URL lengkap dengan protokol (http/https).
  */
 export function getAppUrl(): string {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const rawUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000";
+  const envUrl = rawUrl.replace(/^["']|["']$/g, "").trim();
   return envUrl.startsWith("http://") || envUrl.startsWith("https://")
     ? envUrl
     : `https://${envUrl}`;

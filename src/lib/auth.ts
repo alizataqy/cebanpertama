@@ -3,11 +3,24 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db";
 import { getAppUrl } from "@/utils/url";
 
+// Normalisasi environment variables dari tanda kutip bawaan parser Docker
+if (process.env.BETTER_AUTH_URL) {
+  process.env.BETTER_AUTH_URL = process.env.BETTER_AUTH_URL.replace(/^["']|["']$/g, "").trim();
+}
+if (process.env.NEXT_PUBLIC_APP_URL) {
+  process.env.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL.replace(/^["']|["']$/g, "").trim();
+}
+if (process.env.BETTER_AUTH_SECRET) {
+  process.env.BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET.replace(/^["']|["']$/g, "").trim();
+}
+
 const envAppUrl = process.env.NEXT_PUBLIC_APP_URL;
 const envBetterAuthUrl = process.env.BETTER_AUTH_URL;
+const appUrl = getAppUrl();
 
 const dynamicOrigins: string[] = [
   "http://localhost:3000",
+  appUrl,
 ];
 
 if (process.env.NODE_ENV !== "production") {
@@ -24,7 +37,9 @@ if (process.env.NODE_ENV !== "production") {
 });
 
 export const auth = betterAuth({
+  baseURL: appUrl,
   trustedOrigins: Array.from(new Set(dynamicOrigins)),
+  secret: process.env.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
