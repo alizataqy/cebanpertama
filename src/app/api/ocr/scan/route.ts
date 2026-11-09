@@ -218,9 +218,11 @@ Rules:
     let lastError: Error | null = null;
     const MAX_RETRIES = 5;
 
+    const baseUrl = (process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com").replace(/\/+$/, "");
+
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const modelToUse = candidateModels[(attempt - 1) % candidateModels.length];
-      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`;
+      const geminiUrl = `${baseUrl}/v1beta/models/${modelToUse}:generateContent?key=${apiKey}`;
 
       try {
         const response = await fetch(geminiUrl, {
